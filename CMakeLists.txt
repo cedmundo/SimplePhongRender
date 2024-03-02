@@ -24,8 +24,8 @@ add_subdirectory(xmath)
 # Add main executable
 add_executable(SimplePhongRender)
 target_sources(SimplePhongRender
-  INTERFACE core.h camera.h model.h
-  PRIVATE core.c camera.c model.c main.c
+  INTERFACE core.h camera.h shader.h model.h
+  PRIVATE core.c camera.c shader.c model.c main.c
 )
 target_link_libraries(SimplePhongRender glfw glad cgltf ktx_read xmath)
 

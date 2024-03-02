@@ -4,12 +4,7 @@
 
 #include "camera.h"
 #include "core.h"
-
-// Shader holds the program id after loading
-typedef struct {
-  unsigned spId;
-  StatusCode status;
-} Shader;
+#include "shader.h"
 
 // A single vertex representing the attributes required by the shader
 typedef struct {
@@ -38,12 +33,6 @@ typedef struct {
   Transform transform;
   StatusCode status;
 } Model;
-
-// Load, compile and link a shader program using a fragment and vertex shaders.
-Shader LoadShader(const char *vsPath, const char *fsPath);
-
-// Destroy a shader if needed.
-void DestroyShader(Shader shader);
 
 // Make a single plane
 Model MakeCube(float dim);

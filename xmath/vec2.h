@@ -42,8 +42,10 @@ Vec2 Vec2Add(const Vec2 a, const Vec2 b);
  * \brief Substract two Vec2s.
  *
  * Substracts two Vec2 variables, returning the result as a new vector (on
- * stack). \param Vec2 a is the left operand. \param Vec2 b is the right
- * operand. \return a Vec2 with the substract of components of a minus b.
+ * stack).
+ * \param Vec2 a is the left operand.
+ * \param Vec2 b is the right operand.
+ * \return a Vec2 with the substract of components of a minus b.
  */
 Vec2 Vec2Sub(const Vec2 a, const Vec2 b);
 
@@ -51,7 +53,9 @@ Vec2 Vec2Sub(const Vec2 a, const Vec2 b);
  * \brief Scales a vector.
  *
  * Multiplies all components by factor s, returning result as a new vector (on
- * stack). \param Vec2 a is the vector to scale. \param s is the scalar factor.
+ * stack).
+ * \param Vec2 a is the vector to scale.
+ * \param s is the scalar factor.
  * \return the scalation result.
  */
 Vec2 Vec2Scale(const Vec2 a, const float s);
@@ -60,9 +64,10 @@ Vec2 Vec2Scale(const Vec2 a, const float s);
  * \brief Adds the multiplication of each vector's components.
  *
  * Inner multiplication is not matematically defined at all, it's more like a
- * handy function to help calculate some other stuff. \param Vec2 a is the left
- * operand. \param Vec2 a is the right operand. \return the sum of the
- * multiplication of each component from both vectors.
+ * handy function to help calculate some other stuff.
+ * \param Vec2 a is the left operand.
+ * \param Vec2 a is the right operand.
+ * \return the sum of the multiplication of each component from both vectors.
  */
 float Vec2MulInner(const Vec2 a, const Vec2 b);
 
@@ -98,7 +103,9 @@ Vec2 Vec2Norm(const Vec2 a);
  * \brief Gets the lesser values between two vectors.
  *
  * Creates a new vector (on stack) with the minimum quantities of a and b
- * vectors. \param Vec2 a the left vector. \param Vec2 b the right vector.
+ * vectors.
+ * \param Vec2 a the left vector.
+ * \param Vec2 b the right vector.
  * \return a vector containing two minor values.
  */
 Vec2 Vec2Min(const Vec2 a, const Vec2 b);
@@ -107,7 +114,9 @@ Vec2 Vec2Min(const Vec2 a, const Vec2 b);
  * \brief Gets the greater values between two vectors.
  *
  * Creates a new vector (on stack) with the maximum quantities of a and b
- * vectors. \param Vec2 a the left vector. \param Vec2 b the right vector.
+ * vectors.
+ * \param Vec2 a the left vector.
+ * \param Vec2 b the right vector.
  * \return a vector containing two major values.
  */
 Vec2 Vec2Max(const Vec2 a, const Vec2 b);
