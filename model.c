@@ -333,21 +333,18 @@ void DestroyMesh(Mesh mesh) {
 }
 
 void RenderModel(Model model, Camera camera) {
-  unsigned spid = model.shader.spId;
-  glUseProgram(spid);
-  glBindVertexArray(model.vao);
+  ShaderUse(model.shader);
 
+  // Setup uniforms
   Mat4 viewMat = TransformGetModelMatrix(camera.transform);
   Mat4 projMat = CameraGetProjMatrix(camera);
   Mat4 modelMat = TransformGetModelMatrix(model.transform);
+  ShaderSetUniformMat4(model.shader, "view", viewMat);
+  ShaderSetUniformMat4(model.shader, "proj", projMat);
+  ShaderSetUniformMat4(model.shader, "model", modelMat);
 
-  int modelMat4Loc = glGetUniformLocation(spid, "model");
-  int viewMat4Loc = glGetUniformLocation(spid, "view");
-  int projMat4Loc = glGetUniformLocation(spid, "proj");
-
-  glUniformMatrix4fv(modelMat4Loc, 1, GL_FALSE, Mat4Raw(&modelMat));
-  glUniformMatrix4fv(viewMat4Loc, 1, GL_FALSE, Mat4Raw(&viewMat));
-  glUniformMatrix4fv(projMat4Loc, 1, GL_FALSE, Mat4Raw(&projMat));
+  // Draw meshes
+  glBindVertexArray(model.vao);
   for (int i = 0; i < model.meshesCount; i++) {
     // IMPORTANT NOTE: Maybe assign a type GL_UNSIGNED_SHORT | GL_UNSIGNED_INT
     // in case of getting a larger type at reading model.

@@ -88,6 +88,39 @@ terminate:
   return shader;
 }
 
+void ShaderUse(Shader shader) { glUseProgram(shader.spId); }
+
+void ShaderSetUniformMat4(Shader shader, const char *name, Mat4 value) {
+  glUniformMatrix4fv(glGetUniformLocation(shader.spId, name), 1, GL_FALSE,
+                     Mat4Raw(&value));
+}
+
+void ShaderSetUniformVec4(Shader shader, const char *name, Vec4 value) {
+  glUniform4f(glGetUniformLocation(shader.spId, name), value.x, value.y,
+              value.z, value.w);
+}
+
+void ShaderSetUniformVec3(Shader shader, const char *name, Vec3 value) {
+  glUniform3f(glGetUniformLocation(shader.spId, name), value.x, value.y,
+              value.z);
+}
+
+void ShaderSetUniformVec2(Shader shader, const char *name, Vec2 value) {
+  glUniform2f(glGetUniformLocation(shader.spId, name), value.x, value.y);
+}
+
+void ShaderSetUniformFloat(Shader shader, const char *name, float value) {
+  glUniform1f(glGetUniformLocation(shader.spId, name), value);
+}
+
+void ShaderSetUniformInt(Shader shader, const char *name, int value) {
+  glUniform1i(glGetUniformLocation(shader.spId, name), value);
+}
+
+void ShaderSetUniformBool(Shader shader, const char *name, bool value) {
+  glUniform1i(glGetUniformLocation(shader.spId, name), value);
+}
+
 void DestroyShader(Shader shader) {
   if (shader.spId != 0) {
     glDeleteProgram(shader.spId);
