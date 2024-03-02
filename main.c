@@ -19,14 +19,12 @@ int main() {
     return AppClose(shader.status);
   }
 
-  Model model = MakeCube(1.0f);
+  Model model = LoadModel("assets/box.gltf");
   if (model.status != SUCCESS) {
     return AppClose(model.status);
   }
 
   model.transform = MakeTransform();
-  model.shader = shader;
-
   Camera camera = MakeDefaultCamera();
   while (!AppShouldClose()) {
     BeginFrame();

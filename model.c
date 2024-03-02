@@ -333,15 +333,17 @@ void DestroyMesh(Mesh mesh) {
 }
 
 void RenderModel(Model model, Camera camera) {
-  ShaderUse(model.shader);
+  // TODO(cedmundo): Replace for MaterialUse(model.material)
+  ShaderUse(model.material.shader);
 
   // Setup uniforms
   Mat4 viewMat = TransformGetModelMatrix(camera.transform);
   Mat4 projMat = CameraGetProjMatrix(camera);
   Mat4 modelMat = TransformGetModelMatrix(model.transform);
-  ShaderSetUniformMat4(model.shader, "view", viewMat);
-  ShaderSetUniformMat4(model.shader, "proj", projMat);
-  ShaderSetUniformMat4(model.shader, "model", modelMat);
+  // TODO(cedmundo): Replace for MaterialSetMat4(...)
+  ShaderSetUniformMat4(model.material.shader, "view", viewMat);
+  ShaderSetUniformMat4(model.material.shader, "proj", projMat);
+  ShaderSetUniformMat4(model.material.shader, "model", modelMat);
 
   // Draw meshes
   glBindVertexArray(model.vao);

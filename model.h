@@ -5,6 +5,7 @@
 #include "camera.h"
 #include "core.h"
 #include "shader.h"
+#include "texture.h"
 
 // A single vertex representing the attributes required by the shader
 typedef struct {
@@ -23,13 +24,19 @@ typedef struct {
   unsigned ebo;
 } Mesh;
 
+// Standard phong-based material
+typedef struct {
+  Texture baseColorTex;
+  Shader shader;
+} Material;
+
 // Model wraps a mesh with a material, a transform and its buffers.
 typedef struct {
   Mesh *meshes;
   size_t meshesCount;
   unsigned vao;
 
-  Shader shader;
+  Material material;
   Transform transform;
   StatusCode status;
 } Model;
