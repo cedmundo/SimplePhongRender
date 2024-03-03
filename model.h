@@ -17,9 +17,10 @@ typedef struct {
 
 // Primitive reflects a single mesh instance of a model
 typedef struct {
+  unsigned short *indices;
+  size_t indicesCount;
   Vertex *vertices;
   size_t verticesCount;
-  size_t indicesCount;
   unsigned vbo;
   unsigned ebo;
 } Mesh;
@@ -46,6 +47,12 @@ Model MakeCube(float dim);
 
 // Load a GLTF model into memory decoding its data and uploading to the GPU.
 Model LoadModel(const char *path);
+
+// Load GLTF data into a model without uploading to GPU.
+Model LoadGLTF(const char *path);
+
+// Upload model to the GPU.
+StatusCode UploadModel(Model *model);
 
 // Destroy all contents of a model.
 void DestroyModel(Model model);

@@ -1,10 +1,9 @@
+#include "core.h"
 #include "model.h"
 
 #include <glad/glad.h>
 #define CGLTF_IMPLEMENTATION
 #include "cgltf.h"
-
-StatusCode UploadIndices(Mesh *mesh, cgltf_accessor *indices_accessor);
 
 Model MakeCube(float dim) {
   Model model = {0};
@@ -76,6 +75,20 @@ Model MakeCube(float dim) {
 }
 
 Model LoadModel(const char *path) {
+  Model model = LoadGLTF(path);
+  if (model.status != SUCCESS) {
+    return model;
+  }
+
+  model.status = UploadModel(&model);
+  if (model.status != SUCCESS) {
+    return model;
+  }
+
+  return model;
+}
+
+Model LoadGLTF(const char *path) {
   Model model = {0};
 
   cgltf_options options = {0};
@@ -104,11 +117,6 @@ Model LoadModel(const char *path) {
         result);
     return model;
   }
-
-  // Bind each accessor as VertexAttrib
-  unsigned vao = 0;
-  glGenVertexArrays(1, &vao);
-  glBindVertexArray(vao);
 
   size_t meshesCount = 0;
   for (size_t i = 0; i < data->meshes_count; i++) {
@@ -172,8 +180,9 @@ Model LoadModel(const char *path) {
                 "error loading color attribute #%d, type %d in file %s (not "
                 "a vec4 of floats)",
                 ai, attribute.type, path);
-            model.status = E_CANNOT_LOAD_FILE;
-            return model;
+            // model.status = E_CANNOT_LOAD_FILE;
+            // return model;
+            continue;
           }
 
           col_buffer = attr_buf->data + attr_view->offset;
@@ -186,8 +195,9 @@ Model LoadModel(const char *path) {
                 "error loading texcoord attribute #%d, type %d in file %s (not "
                 "a vec2 of floats)",
                 ai, attribute.type, path);
-            model.status = E_CANNOT_LOAD_FILE;
-            return model;
+            // model.status = E_CANNOT_LOAD_FILE;
+            // return model;
+            continue;
           }
 
           uvs_buffer = attr_buf->data + attr_view->offset;
@@ -200,8 +210,9 @@ Model LoadModel(const char *path) {
                 "error loading normal attribute #%d, type %d in file %s (not a "
                 "vec3 of floats)",
                 ai, attribute.type, path);
-            model.status = E_CANNOT_LOAD_FILE;
-            return model;
+            // model.status = E_CANNOT_LOAD_FILE;
+            // return model;
+            continue;
           }
 
           nor_buffer = attr_buf->data + attr_view->offset;
@@ -221,6 +232,13 @@ Model LoadModel(const char *path) {
 
       // Allocate space for all vertices in the mesh
       mesh->vertices = calloc(mesh->verticesCount, sizeof(Vertex));
+      if (mesh->vertices == NULL) {
+        Log(LOG_ERROR, "out of memory error: cannot load vertices of file %s",
+            path);
+        model.status = E_OUT_OF_MEMORY;
+        return model;
+      }
+
       for (size_t vi = 0; vi < mesh->verticesCount; vi++) {
         mesh->vertices[vi].pos = *((Vec3 *)(pos_buffer + pos_stride * vi));
 
@@ -237,42 +255,29 @@ Model LoadModel(const char *path) {
         }
       }
 
-      // Gen buffers for mesh main buffer
-      glGenBuffers(1, &mesh->vbo);
-      glBindBuffer(GL_ARRAY_BUFFER, mesh->vbo);
-      glBufferData(GL_ARRAY_BUFFER,
-                   (GLsizeiptr)(mesh->verticesCount * sizeof(Vertex)),
-                   mesh->vertices, GL_STATIC_DRAW);
-
-      // Position attribute
-      glEnableVertexAttribArray(0);
-      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-                            (void *)offsetof(Vertex, pos));
-
-      // Normal attribute
-      glEnableVertexAttribArray(1);
-      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-                            (void *)offsetof(Vertex, nor));
-
-      // TexCoord attribute
-      glEnableVertexAttribArray(2);
-      glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-                            (void *)offsetof(Vertex, uvs));
-
-      // Color attribute
-      glEnableVertexAttribArray(3);
-      glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-                            (void *)offsetof(Vertex, col));
-
       // Load model indices
       cgltf_accessor *indices_accessor = primitive.indices;
-      model.status = UploadIndices(mesh, indices_accessor);
-      if (model.status != SUCCESS) {
+      if (indices_accessor->type != cgltf_type_scalar &&
+          indices_accessor->component_type == cgltf_component_type_r_16u) {
         Log(LOG_ERROR,
-            "invalid index array in file %s (not a buffer view of scalars)",
-            path);
+            "indices accessor must be unsigned short scalar in file %s", path);
+        model.status = E_CANNOT_LOAD_FILE;
         return model;
       }
+
+      cgltf_buffer_view *indices_view = indices_accessor->buffer_view;
+      cgltf_buffer *indices_buffer = indices_view->buffer;
+
+      mesh->indicesCount = indices_accessor->count;
+      mesh->indices = calloc(mesh->indicesCount, sizeof(unsigned short));
+      if (mesh->indices == NULL) {
+        Log(LOG_ERROR, "out of memory error: cannot load indices of file %s",
+            path);
+        model.status = E_OUT_OF_MEMORY;
+        return model;
+      }
+      memcpy(mesh->indices, indices_buffer->data + indices_view->offset,
+             indices_view->size);
 
       // Next mesh
       meshIndex++;
@@ -282,29 +287,54 @@ Model LoadModel(const char *path) {
   // Collect evereything and return it so we can release it when destroying
   model.meshesCount = meshesCount;
   model.meshes = meshes;
-  model.vao = vao;
 
   glBindVertexArray(0);
   cgltf_free(data);
   return model;
 }
 
-StatusCode UploadIndices(Mesh *mesh, cgltf_accessor *indices_accessor) {
-  unsigned ebo = 0;
-  glGenBuffers(1, &ebo);
-  if (indices_accessor->type != cgltf_type_scalar) {
-    return E_CANNOT_LOAD_FILE;
+StatusCode UploadModel(Model *model) {
+  glGenVertexArrays(1, &model->vao);
+  glBindVertexArray(model->vao);
+
+  for (size_t i = 0; i < model->meshesCount; i++) {
+    Mesh *mesh = model->meshes + i;
+    // Upload buffer and attributes
+    glGenBuffers(1, &mesh->vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, mesh->vbo);
+    glBufferData(GL_ARRAY_BUFFER,
+                 (GLsizeiptr)(mesh->verticesCount * sizeof(Vertex)),
+                 mesh->vertices, GL_STATIC_DRAW);
+
+    // Position attribute
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+                          (void *)offsetof(Vertex, pos));
+
+    // Normal attribute
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+                          (void *)offsetof(Vertex, nor));
+
+    // TexCoord attribute
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+                          (void *)offsetof(Vertex, uvs));
+
+    // Color attribute
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+                          (void *)offsetof(Vertex, col));
+
+    // Upload indices
+    glGenBuffers(1, &mesh->ebo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+                 (GLsizeiptr)mesh->indicesCount * sizeof(unsigned short),
+                 mesh->indices, GL_STATIC_DRAW);
   }
 
-  // TODO(cedmundo): copy indices
-  cgltf_buffer_view *indices_view = indices_accessor->buffer_view;
-  cgltf_buffer *indices_buffer = indices_view->buffer;
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr)indices_view->size,
-               indices_buffer->data + indices_view->offset, GL_STATIC_DRAW);
-
-  mesh->ebo = ebo;
-  mesh->indicesCount = indices_accessor->count;
+  glBindVertexArray(0);
   return SUCCESS;
 }
 
