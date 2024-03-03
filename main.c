@@ -23,9 +23,7 @@ int main() {
   if (model.status != SUCCESS) {
     return AppClose(model.status);
   }
-
   model.transform = MakeTransform();
-  model.material.shader = shader;
 
   Camera camera = MakeDefaultCamera();
   while (!AppShouldClose()) {

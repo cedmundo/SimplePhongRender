@@ -18,6 +18,22 @@
 			"name":"Cube"
 		}
 	],
+	"materials":[
+		{
+			"doubleSided":true,
+			"name":"Standard Material",
+			"pbrMetallicRoughness":{
+				"baseColorFactor":[
+					0.26825347542762756,
+					0.8003387451171875,
+					0.24158476293087006,
+					1
+				],
+				"metallicFactor":0,
+				"roughnessFactor":0.36614173650741577
+			}
+		}
+	],
 	"meshes":[
 		{
 			"name":"Cube",
@@ -29,7 +45,8 @@
 						"NORMAL":2,
 						"TEXCOORD_0":3
 					},
-					"indices":4
+					"indices":4,
+					"material":0
 				}
 			]
 		}

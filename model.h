@@ -1,11 +1,16 @@
 #pragma once
 #include <stddef.h>
+#include <xmath/color.h>
 #include <xmath/transform.h>
 
 #include "camera.h"
 #include "core.h"
 #include "shader.h"
 #include "texture.h"
+
+// TODO(cedmundo): move this into App-like configuration
+#define MATERIAL_PHONG_VS_SHADER "assets/phong.vs.glsl"
+#define MATERIAL_PHONG_FS_SHADER "assets/phong.fs.glsl"
 
 // A single vertex representing the attributes required by the shader
 typedef struct {
@@ -15,6 +20,14 @@ typedef struct {
   Vec4 col;
 } Vertex;
 
+// Standard phong-based material
+typedef struct {
+  Color baseColorFactor;
+  float metallicFactor;
+  float roughnessFactor;
+  Shader shader;
+} Material;
+
 // Primitive reflects a single mesh instance of a model
 typedef struct {
   unsigned short *indices;
@@ -23,13 +36,9 @@ typedef struct {
   size_t verticesCount;
   unsigned vbo;
   unsigned ebo;
-} Mesh;
 
-// Standard phong-based material
-typedef struct {
-  Texture baseColorTex;
-  Shader shader;
-} Material;
+  Material material;
+} Mesh;
 
 // Model wraps a mesh with a material, a transform and its buffers.
 typedef struct {
@@ -37,7 +46,6 @@ typedef struct {
   size_t meshesCount;
   unsigned vao;
 
-  Material material;
   Transform transform;
   StatusCode status;
 } Model;

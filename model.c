@@ -279,6 +279,34 @@ Model LoadGLTF(const char *path) {
       memcpy(mesh->indices, indices_buffer->data + indices_view->offset,
              indices_view->size);
 
+      // Load materials
+      cgltf_material *material = primitive.material;
+      if (material->has_pbr_metallic_roughness) {
+        // TODO(cedmundo): Load textures
+        cgltf_pbr_metallic_roughness params = material->pbr_metallic_roughness;
+        Material material = {0};
+        Shader shader =
+            LoadShader(MATERIAL_PHONG_VS_SHADER, MATERIAL_PHONG_FS_SHADER);
+        if (shader.status != SUCCESS) {
+          Log(LOG_ERROR,
+              "cannot load default phong shader for PBR material in file %s",
+              path);
+          model.status = shader.status;
+          return model;
+        }
+
+        material.baseColorFactor = (Color){
+            params.base_color_factor[0],
+            params.base_color_factor[1],
+            params.base_color_factor[2],
+            params.base_color_factor[3],
+        };
+        material.metallicFactor = params.metallic_factor;
+        material.roughnessFactor = params.roughness_factor;
+        material.shader = shader;
+        mesh->material = material;
+      }
+
       // Next mesh
       meshIndex++;
     }
@@ -353,6 +381,14 @@ void DestroyModel(Model model) {
 }
 
 void DestroyMesh(Mesh mesh) {
+  if (mesh.indices != NULL) {
+    free(mesh.indices);
+  }
+
+  if (mesh.vertices != NULL) {
+    free(mesh.vertices);
+  }
+
   if (mesh.ebo != 0) {
     glDeleteBuffers(1, &mesh.ebo);
   }
@@ -363,26 +399,30 @@ void DestroyMesh(Mesh mesh) {
 }
 
 void RenderModel(Model model, Camera camera) {
-  // TODO(cedmundo): Replace for MaterialUse(model.material)
-  ShaderUse(model.material.shader);
-
-  // Setup uniforms
-  Mat4 viewMat = TransformGetModelMatrix(camera.transform);
-  Mat4 projMat = CameraGetProjMatrix(camera);
-  Mat4 modelMat = TransformGetModelMatrix(model.transform);
-  // TODO(cedmundo): Replace for MaterialSetMat4(...)
-  ShaderSetUniformMat4(model.material.shader, "view", viewMat);
-  ShaderSetUniformMat4(model.material.shader, "proj", projMat);
-  ShaderSetUniformMat4(model.material.shader, "model", modelMat);
-
   // Draw meshes
   glBindVertexArray(model.vao);
   for (int i = 0; i < model.meshesCount; i++) {
+    Mesh mesh = model.meshes[i];
+
+    // TODO(cedmundo): Replace for MaterialUse(model.material)
+    ShaderUse(mesh.material.shader);
+
+    // Setup uniforms
+    Mat4 viewMat = TransformGetModelMatrix(camera.transform);
+    Mat4 projMat = CameraGetProjMatrix(camera);
+    Mat4 modelMat = TransformGetModelMatrix(model.transform);
+
+    // TODO(cedmundo): Replace for MaterialSetMat4(...)
+    ShaderSetUniformMat4(mesh.material.shader, "view", viewMat);
+    ShaderSetUniformMat4(mesh.material.shader, "proj", projMat);
+    ShaderSetUniformMat4(mesh.material.shader, "model", modelMat);
+
     // IMPORTANT NOTE: Maybe assign a type GL_UNSIGNED_SHORT | GL_UNSIGNED_INT
     // in case of getting a larger type at reading model.
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model.meshes[i].ebo);
-    glDrawElements(GL_TRIANGLES, (GLsizei)model.meshes[i].indicesCount,
-                   GL_UNSIGNED_SHORT, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.ebo);
+    glDrawElements(GL_TRIANGLES, (GLsizei)mesh.indicesCount, GL_UNSIGNED_SHORT,
+                   0);
   }
+
   glBindVertexArray(0);
 }
