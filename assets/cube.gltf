@@ -23,14 +23,9 @@
 			"doubleSided":true,
 			"name":"Standard Material",
 			"pbrMetallicRoughness":{
-				"baseColorFactor":[
-					0.8006867170333862,
-					0.14456653594970703,
-					0.10477276146411896,
-					1
-				],
-                "metallicFactor": 32,
-                "roughnessFactor": 0.9,
+				"baseColorTexture":{
+					"index":0
+				}
 			}
 		}
 	],
@@ -49,6 +44,19 @@
 					"material":0
 				}
 			]
+		}
+	],
+	"textures":[
+		{
+			"sampler":0,
+			"source":0
+		}
+	],
+	"images":[
+		{
+			"mimeType":"image/png",
+			"name":"Cube_ColorTex",
+			"uri":"Cube_ColorTex.png"
 		}
 	],
 	"accessors":[
@@ -123,6 +131,12 @@
 			"byteLength":72,
 			"byteOffset":1152,
 			"target":34963
+		}
+	],
+	"samplers":[
+		{
+			"magFilter":9729,
+			"minFilter":9987
 		}
 	],
 	"buffers":[
