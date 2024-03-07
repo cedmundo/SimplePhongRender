@@ -2,6 +2,7 @@
 #include "core.h"
 #include "model.h"
 #include "xmath/transform.h"
+#include "xmath/vec3.h"
 
 #define WINDOW_WIDTH 500
 #define WINDOW_HEIGTH 500
@@ -26,25 +27,25 @@ int main() {
   }
   model.transform = MakeTransform();
 
-  Camera camera = MakeDefaultCamera();
-  camera.transform.origin = (Vec3){0.0f, 1.0f, -10.0f};
+  Camera camera = MakeDefaultCamera(Vec3Up);
+  camera.position = (Vec3){0.0f, 1.0f, 10.0f};
 
   LightSource ambientLight = {LIGHT_AMBIENT, ColorDarkGray, MakeTransform()};
   LightSource spotlight = {LIGHT_POINTLIGHT, ColorWhite, MakeTransform()};
-  spotlight.transform.origin = (Vec3){0.0, 2.0, 1.0};
+  spotlight.transform.origin = (Vec3){0.0, 0.0, 10.0};
 
   while (!AppShouldClose()) {
     BeginFrame();
     {
       // Update camera and look at cube
       UpdateCamera(&camera);
-      // camera.transform =
-      //    TransformLookingAt(camera.transform, model.transform.origin,
-      //    Vec3Up);
+
+      // camera.position =
+      //    Vec3Add(camera.position, (Vec3){0.0f, GetDeltaTime() * 0.2f, 0});
 
       // Rotate cube
       model.transform.angles.y += 1.0f * GetDeltaTime();
-      model.transform.angles.x += 1.0f * GetDeltaTime();
+      // model.transform.angles.x += 1.0f * GetDeltaTime();
 
       // Render
       RenderModel(model, camera, spotlight, ambientLight);

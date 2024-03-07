@@ -1,5 +1,5 @@
 #pragma once
-#include <xmath/transform.h>
+#include <xmath/mat4.h>
 #include <xmath/vec3.h>
 
 #define CAMERA_DEFAULT_NEAR 0.1f
@@ -12,10 +12,11 @@ typedef struct {
     CAMERA_MODE_ORTHO_PROJ,
     CAMERA_MODE_PERSPECTIVE_PROJ,
   } mode;
-  Vec3 front;
+  Vec3 forward;
   Vec3 up;
   Vec3 right;
   Vec3 worldUp;
+  Vec3 position;
 
   float fov;
   float width;
@@ -23,15 +24,16 @@ typedef struct {
   float aspect;
   float near;
   float far;
-
-  Transform transform;
 } Camera;
 
 // Return a perspective camera looking at origin offset a little bit
-Camera MakeDefaultCamera();
+Camera MakeDefaultCamera(Vec3 worldUp);
 
 // Return the *updated* projection matrix of a camera.
 Mat4 CameraGetProjMatrix(Camera camera);
+
+// Return the *updated* view matrix for a camera.
+Mat4 CameraGetViewMatrix(Camera camera);
 
 // Updates the current camera using core state
 void UpdateCamera(Camera *camera);

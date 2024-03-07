@@ -411,7 +411,7 @@ void RenderModel(Model model, Camera camera, LightSource mainLight,
     ShaderUse(mesh.material.shader);
 
     // Setup uniforms
-    Mat4 viewMat = TransformGetModelMatrix(camera.transform);
+    Mat4 viewMat = CameraGetViewMatrix(camera);
     Mat4 projMat = CameraGetProjMatrix(camera);
     Mat4 modelMat = TransformGetModelMatrix(model.transform);
 
@@ -429,7 +429,7 @@ void RenderModel(Model model, Camera camera, LightSource mainLight,
 
     // FIXME(cedmundo): camera position is not right, it camera.transform.origin
     // does not correspond to the actual position of the camera.
-    ShaderSetUniformVec3(shader, "viewPos", (Vec3){0, 0, 10.0});
+    ShaderSetUniformVec3(shader, "viewPos", camera.position);
     ShaderSetUniformVec3(shader, "lightPos", mainLight.transform.origin);
     ShaderSetUniformVec3(shader, "lightCol", ColorToRGB(mainLight.color));
     ShaderSetUniformVec3(shader, "ambientCol", ColorToRGB(ambientLight.color));

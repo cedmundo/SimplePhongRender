@@ -24,10 +24,9 @@ void main() {
   // specular
   vec3 viewDir = normalize(viewPos - FragPos);
   vec3 reflectDir = reflect(-lightDir, normDir);
-  float specIntensity = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+  float specIntensity = pow(max(dot(viewDir, reflectDir), 0.0), materialMetalness);
   vec3 specular = 1.0 * specIntensity * lightCol;
 
   // result
-  FragColor = vec4(
-      (ambientCol + diffuse + specular + vCol.xyz) * materialBaseColor, 1.0);
+  FragColor = vec4((ambientCol + diffuse + specular) * materialBaseColor, 1.0);
 }
