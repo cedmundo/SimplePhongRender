@@ -156,6 +156,30 @@ Mat4 Mat4MakeRotationY(float angle);
 Mat4 Mat4MakeRotationZ(float angle);
 
 /**
+ * \brief Return the position from a matrix.
+ *
+ * \param a transformation matrix.
+ * \return origin of the matrix.
+ */
+Vec3 Mat4GetOrigin(Mat4 m);
+
+/**
+ * \brief Return scale values from a matrix
+ *
+ * \param a transformation matrix.
+ * \return scale of the matrix.
+ */
+Vec3 Mat4GetScale(Mat4 m);
+
+/**
+ * \brief Return euler angles from a matrix
+ *
+ * \param a transformation matrix.
+ * \return euler angles for x, y and z.
+ */
+Vec3 Mat4GetEuler(Mat4 m);
+
+/**
  * \brief Makes a new ortho matrix.
  *
  * Generates a new projection matrix usen left, right, bottom, top, near and far

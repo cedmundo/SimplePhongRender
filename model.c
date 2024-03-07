@@ -398,11 +398,14 @@ void DestroyMesh(Mesh mesh) {
   }
 }
 
-void RenderModel(Model model, Camera camera) {
+void RenderModel(Model model, Camera camera, LightSource mainLight,
+                 LightSource ambientLight) {
   // Draw meshes
   glBindVertexArray(model.vao);
   for (int i = 0; i < model.meshesCount; i++) {
     Mesh mesh = model.meshes[i];
+    Material material = mesh.material;
+    Shader shader = material.shader;
 
     // TODO(cedmundo): Replace for MaterialUse(model.material)
     ShaderUse(mesh.material.shader);
@@ -412,10 +415,24 @@ void RenderModel(Model model, Camera camera) {
     Mat4 projMat = CameraGetProjMatrix(camera);
     Mat4 modelMat = TransformGetModelMatrix(model.transform);
 
-    // TODO(cedmundo): Replace for MaterialSetMat4(...)
-    ShaderSetUniformMat4(mesh.material.shader, "view", viewMat);
-    ShaderSetUniformMat4(mesh.material.shader, "proj", projMat);
-    ShaderSetUniformMat4(mesh.material.shader, "model", modelMat);
+    // position and transform
+    ShaderSetUniformMat4(shader, "view", viewMat);
+    ShaderSetUniformMat4(shader, "proj", projMat);
+    ShaderSetUniformMat4(shader, "model", modelMat);
+
+    // material
+    ShaderSetUniformVec3(shader, "materialBaseColor",
+                         ColorToRGB(material.baseColorFactor));
+    ShaderSetUniformFloat(shader, "materialMetalness", material.metallicFactor);
+    ShaderSetUniformFloat(shader, "materialRoughness",
+                          material.roughnessFactor);
+
+    // FIXME(cedmundo): camera position is not right, it camera.transform.origin
+    // does not correspond to the actual position of the camera.
+    ShaderSetUniformVec3(shader, "viewPos", (Vec3){0, 0, 10.0});
+    ShaderSetUniformVec3(shader, "lightPos", mainLight.transform.origin);
+    ShaderSetUniformVec3(shader, "lightCol", ColorToRGB(mainLight.color));
+    ShaderSetUniformVec3(shader, "ambientCol", ColorToRGB(ambientLight.color));
 
     // IMPORTANT NOTE: Maybe assign a type GL_UNSIGNED_SHORT | GL_UNSIGNED_INT
     // in case of getting a larger type at reading model.

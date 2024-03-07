@@ -12,6 +12,15 @@
 #define MATERIAL_PHONG_VS_SHADER "assets/phong.vs.glsl"
 #define MATERIAL_PHONG_FS_SHADER "assets/phong.fs.glsl"
 
+typedef struct {
+  enum {
+    LIGHT_AMBIENT,
+    LIGHT_POINTLIGHT,
+  } mode;
+  Color color;
+  Transform transform;
+} LightSource;
+
 // A single vertex representing the attributes required by the shader
 typedef struct {
   Vec3 pos;
@@ -69,4 +78,5 @@ void DestroyModel(Model model);
 void DestroyMesh(Mesh mesh);
 
 // Render a model from the point of view of given camera
-void RenderModel(Model model, Camera camera);
+void RenderModel(Model model, Camera camera, LightSource mainLight,
+                 LightSource ambientLight);

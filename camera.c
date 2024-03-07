@@ -20,7 +20,6 @@ Camera MakeDefaultCamera() {
   Camera camera = {0};
   camera.mode = CAMERA_MODE_PERSPECTIVE_PROJ;
   camera.transform = MakeTransform();
-  camera.transform.origin = (Vec3){0.0f, 0.0f, -10.0f};
   camera.front = Vec3Forward;
   camera.up = Vec3Up;
   camera.fov = CAMERA_DEFAULT_FOV;

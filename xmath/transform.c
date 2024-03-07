@@ -1,4 +1,5 @@
 #include "transform.h"
+#include "xmath/mat4.h"
 
 Transform MakeTransform() {
   return (Transform){

@@ -227,6 +227,29 @@ Mat4 Mat4MakeRotationZ(float angle) {
   return r;
 }
 
+Vec3 Mat4GetOrigin(Mat4 m) { return (Vec3){m.wx, m.wy, m.wz}; }
+
+Vec3 Mat4GetScale(Mat4 m) { return (Vec3){m.xx, m.yy, m.zz}; }
+
+Vec3 Mat4GetEuler(Mat4 m) {
+  Vec3 angles = {0};
+  if (m.xx == 1.0f) {
+    angles.x = atan2f(m.xz, m.zw);
+    angles.y = 0;
+    angles.z = 0;
+  } else if (m.xx == -1.0f) {
+    angles.x = atan2f(m.xz, m.zw);
+    angles.y = 0;
+    angles.z = 0;
+  } else {
+    angles.x = atan2(-m.zx, m.xx);
+    angles.y = asin(m.yx);
+    angles.z = atan2(-m.yz, m.yy);
+  }
+
+  return angles;
+}
+
 Mat4 Mat4MakeOrtho(float l, float r, float b, float t, float n, float f) {
   Mat4 m = Mat4Zero;
 
