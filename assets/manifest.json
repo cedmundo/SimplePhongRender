@@ -1,0 +1,4 @@
+{
+	"process_gltf": ["cube.gltf"],
+	"copy_files": ["phong.fs.glsl", "phong.vs.glsl"]
+}
