@@ -1,5 +1,6 @@
 #include "core.h"
 #include "model.h"
+#include "texture.h"
 
 #include <glad/glad.h>
 #define CGLTF_IMPLEMENTATION
@@ -295,6 +296,7 @@ Model LoadGLTF(const char *path) {
           return model;
         }
 
+        // Set colors
         material.baseColorFactor = (Color){
             params.base_color_factor[0],
             params.base_color_factor[1],
@@ -303,8 +305,28 @@ Model LoadGLTF(const char *path) {
         };
         material.metallicFactor = params.metallic_factor;
         material.roughnessFactor = params.roughness_factor;
+
+        // Set textures
+        char *baseColorTexturePath = NULL;
+        if (params.base_color_texture.texture != NULL &&
+            params.base_color_texture.texture->basisu_image != NULL) {
+          char *baseColorTextureUri =
+              params.base_color_texture.texture->basisu_image->uri;
+          baseColorTexturePath = GetRelativePathTo(path, baseColorTextureUri);
+          material.baseColorTexture = LoadTexture(baseColorTexturePath);
+          if (material.baseColorTexture.status != SUCCESS) {
+            Log(LOG_ERROR, "cannot load texture: %s", baseColorTexturePath);
+            model.status = material.baseColorTexture.status;
+            return model;
+          }
+        }
+
         material.shader = shader;
         mesh->material = material;
+
+        if (baseColorTexturePath != NULL) {
+          free(baseColorTexturePath);
+        }
       }
 
       // Next mesh
@@ -380,6 +402,12 @@ void DestroyModel(Model model) {
   }
 }
 
+void DestroyMaterial(Material material) {
+  if (material.baseColorTexture.id != 0) {
+    glDeleteTextures(1, &material.baseColorTexture.id);
+  }
+}
+
 void DestroyMesh(Mesh mesh) {
   if (mesh.indices != NULL) {
     free(mesh.indices);
@@ -388,6 +416,8 @@ void DestroyMesh(Mesh mesh) {
   if (mesh.vertices != NULL) {
     free(mesh.vertices);
   }
+
+  DestroyMaterial(mesh.material);
 
   if (mesh.ebo != 0) {
     glDeleteBuffers(1, &mesh.ebo);
@@ -433,6 +463,12 @@ void RenderModel(Model model, Camera camera, LightSource mainLight,
     ShaderSetUniformVec3(shader, "lightPos", mainLight.transform.origin);
     ShaderSetUniformVec3(shader, "lightCol", ColorToRGB(mainLight.color));
     ShaderSetUniformVec3(shader, "ambientCol", ColorToRGB(ambientLight.color));
+
+    // Pass all textures
+    if (material.baseColorTexture.id != 0) {
+      glActiveTexture(GL_TEXTURE0 + 0);
+      glBindTexture(GL_TEXTURE_2D, material.baseColorTexture.id);
+    }
 
     // IMPORTANT NOTE: Maybe assign a type GL_UNSIGNED_SHORT | GL_UNSIGNED_INT
     // in case of getting a larger type at reading model.

@@ -2,7 +2,6 @@
 #include <glad/glad.h>
 
 Texture LoadTexture(const char *texPath) {
-  // TODO(cedmundo): verify textPath is a KTX texture
   Texture texture = {0};
   KTX_error_code result = KTX_SUCCESS;
 

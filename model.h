@@ -31,8 +31,11 @@ typedef struct {
 
 // Standard phong-based material
 typedef struct {
+  Texture baseColorTexture;
   Color baseColorFactor;
+  Texture metallicTexture;
   float metallicFactor;
+  Texture roughnessTexture;
   float roughnessFactor;
   Shader shader;
 } Material;

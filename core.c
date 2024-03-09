@@ -8,6 +8,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+// TODO(cedmundo): make multiplatform
+#include <dlfcn.h>
+
 // GLAD / GLFW
 #include <glad/glad.h>
 #define GLFW_INCLUDE_NONE
@@ -36,6 +39,9 @@ StatusCode AppInit(int window_width, int window_height,
     return E_CANNOT_INIT_GLFW;
   }
 
+  // Load OpenGL because ktx is kind of dumb
+  dlopen("libGL.so", RTLD_NOW | RTLD_GLOBAL);
+
   // Allow GLFW termination
   app.didInitGLFW = true;
 
@@ -53,7 +59,7 @@ StatusCode AppInit(int window_width, int window_height,
 
   // Without this gladLoadGL will fail.
   glfwMakeContextCurrent(app.window);
-  if (!gladLoadGL()) {
+  if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
     return E_CANNOT_LOAD_GL;
   }
 
@@ -188,4 +194,20 @@ void UnloadFileContents(char *data) {
   if (data != NULL) {
     free(data);
   }
+}
+
+char *GetRelativePathTo(const char *relTo, const char *file) {
+  assert(relTo != NULL && "invalid arg relTo: cannot be NULL");
+  size_t relToLen = strlen(relTo);
+  size_t baseIndex = 0L;
+  for (size_t i = relToLen; i >= 0; i--) {
+    if (relTo[i] == CORE_PATH_SEPARATOR_CHAR) {
+      baseIndex = i + 1;
+      break;
+    }
+  }
+
+  char *newPath = calloc(sizeof(char), baseIndex + strlen(file) + 1);
+  sprintf(newPath, "%.*s%s", (int)baseIndex, relTo, file);
+  return newPath;
 }

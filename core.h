@@ -4,6 +4,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#define CORE_PATH_SEPARATOR_CHAR '/'
+
 typedef enum {
   SUCCESS,
   E_CANNOT_INIT_GLFW,
@@ -60,3 +62,6 @@ char *LoadFileContents(const char *name);
 
 // Release the contents of a file loaded into memory
 void UnloadFileContents(char *data);
+
+// Get a path relative to another file
+char *GetRelativePathTo(const char *relTo, const char *file);

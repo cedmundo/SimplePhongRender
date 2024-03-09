@@ -28,7 +28,7 @@ int main() {
   model.transform = MakeTransform();
 
   Camera camera = MakeDefaultCamera(Vec3Up);
-  camera.position = (Vec3){0.0f, 1.0f, 10.0f};
+  camera.position = (Vec3){0.0f, 0.0f, 10.0f};
 
   LightSource ambientLight = {LIGHT_AMBIENT, ColorDarkGray, MakeTransform()};
   LightSource spotlight = {LIGHT_POINTLIGHT, ColorWhite, MakeTransform()};
@@ -45,7 +45,7 @@ int main() {
 
       // Rotate cube
       model.transform.angles.y += 1.0f * GetDeltaTime();
-      // model.transform.angles.x += 1.0f * GetDeltaTime();
+      model.transform.angles.x += 1.0f * GetDeltaTime();
 
       // Render
       RenderModel(model, camera, spotlight, ambientLight);

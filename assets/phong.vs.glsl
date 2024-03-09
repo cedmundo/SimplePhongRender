@@ -6,6 +6,7 @@ layout(location = 2) in vec2 inUvs;
 layout(location = 3) in vec4 inCol;
 
 out vec4 vCol;
+out vec2 vUvs;
 out vec3 Normal;
 out vec3 FragPos;
 
@@ -18,4 +19,5 @@ void main() {
   FragPos = vec3(model * vec4(inPos, 1.0));
   Normal = mat3(transpose(inverse(view * model))) * inNor;
   vCol = inCol;
+	vUvs = inUvs;
 }

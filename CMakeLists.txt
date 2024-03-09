@@ -29,15 +29,3 @@ target_sources(SimplePhongRender
 )
 target_link_libraries(SimplePhongRender glfw glad cgltf ktx_read xmath)
 
-# Copy assets dir
-set(ASSETS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/assets")
-if(EXISTS "${ASSETS_DIR}")
-  add_custom_command(
-    TARGET SimplePhongRender PRE_BUILD
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_CURRENT_BINARY_DIR}/assets")
-
-  add_custom_command(
-    TARGET SimplePhongRender PRE_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${ASSETS_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/assets")
-endif()
-

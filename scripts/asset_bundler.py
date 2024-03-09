@@ -69,11 +69,11 @@ def process_gltf(file_set, source_directory, target_directory):
 def copy_files(file_set, source_directory, target_directory):
     for copying_file in file_set:
         source_file = path.join(source_directory, copying_file)
-    target_file = path.join(target_directory, copying_file)
-    click.echo(f"copy_files:")
-    click.echo(f"\tSRC: {path.relpath(source_file)}")
-    click.echo(f"\tTRG: {path.relpath(target_file)}")
-    shutil.copyfile(source_file, target_file)
+        target_file = path.join(target_directory, copying_file)
+        click.echo(f"copy_files:")
+        click.echo(f"\tSRC: {path.relpath(source_file)}")
+        click.echo(f"\tTRG: {path.relpath(target_file)}")
+        shutil.copyfile(source_file, target_file)
 
 
 @click.command()
